@@ -1,0 +1,31 @@
+global_defs {
+  vrrp_version 3
+  enable_script_security
+  script_user root
+}
+
+vrrp_instance vips {
+  state BACKUP 
+  interface eno1
+  virtual_router_id 50
+  priority 50
+  nopreempt
+  advert_int 1
+  authentication {
+      auth_type AH
+      auth_pass __whatever_pass__ 
+  }
+  track_interface {
+    eth0 
+  }
+  notify /usr/local/bin/keepalived_notify.sh 
+  
+  unicast_src_ip 1.2.3.5 
+  unicast_peer { 
+    1.2.3.4 
+  }
+  
+  virtual_ipaddress { 
+    1.2.3.6 
+  }
+}

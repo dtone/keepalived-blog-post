@@ -1,0 +1,148 @@
+---
+
+hiera_file: 'host/machine-b.yaml'
+
+classes:
+  - keepalived::global_defs
+  - keepalived
+  - network
+
+network::tables_hash:
+  vswitch:
+    table_id: 1
+network::routes_hash:
+  eth0:
+    ipaddress:
+    - 1.2.3.57
+    - 0.0.0.0
+    netmask:
+    - 255.255.255.255
+    - 0.0.0.0
+    table:
+    - vswitch
+    - vswitch
+    gateway:
+    - false
+    - 1.2.3.57
+    interface: 'eth0.4000'
+network::rules_hash:
+  eth0:
+    iprule:
+    - 'to 1.2.3.56/29 lookup vswitch'
+    - 'from 1.2.3.56/29 lookup vswitch'
+network::interfaces_hash:
+  eth0v4:
+    enable: true
+    ipaddress: 3.4.5.84
+    netmask: 255.255.255.192
+    gateway: 3.4.5.65
+    interface: 'eth0'
+    family: inet
+  eth0v6:
+    enable: true
+    ipaddress: '2a03:4444:4a:246b::2/64'
+    family: inet6
+    gateway: 'fe80::1'
+    interface: 'eth0'
+  eth0.4000v4:
+    enable: true
+    ipaddress: 192.168.200.2
+    netmask: 255.255.255.0
+    vlan: 'yes'
+    interface: 'eth0.4000'
+  dummy0:
+    family: inet
+    ipaddress: 10.10.10.1/24
+    pre_up:
+    - 'ip link add dummy0 type dummy'
+    post_down:
+    - 'ip link del dummy0'
+
+keepalived::global_defs::vrrp_version: 3
+keepalived::global_defs::enable_script_security: true
+keepalived::global_defs::script_user: nobody
+keepalived::global_defs::notification_email:
+- jan.hejl@dtone.com
+keepalived::global_defs::notification_email_from: infra+keepalived@dtone.com
+keepalived::global_defs::smtp_server: '127.0.0.1'
+keepalived::global_defs::smtp_connect_timeout: 30
+keepalived::global_defs::router_id: machine-b
+
+keepalived::vrrp_script:
+  chk_nginx_ingress:
+    script: "/usr/bin/curl GET http://localhost:80/healthz"
+    interval: 2
+    fall: 2
+    rise: 2
+
+keepalived::vrrp_instance:
+  1.2.3.58:
+    state: BACKUP 
+    interface: eth0.4000
+    virtual_router_id: 58
+    priority: 50 
+    nopreempt: true
+    advert_int: 1
+    track_interface:
+    - eth0
+    - dummy0
+    track_script: chk_nginx_ingress
+
+    unicast_source_ip: 192.168.200.2
+    unicast_peers:
+    - 192.168.200.1
+    - 192.168.200.3
+
+    virtual_ipaddress:
+    - '1.2.3.58/29'
+    virtual_ipaddress_excluded:
+    - '2a03:4444:fff0:59:88::58/64'
+
+    smtp_alert: true
+  1.2.3.59:
+    state: MASTER 
+    interface: eth0.4000
+    virtual_router_id: 59
+    priority: 100
+    nopreempt: true
+    advert_int: 1
+    track_interface:
+    - eth0
+    - dummy0
+    track_script: chk_nginx_ingress
+
+    unicast_source_ip: 192.168.200.2
+    unicast_peers:
+    - 192.168.200.1
+    - 192.168.200.3
+
+    virtual_ipaddress:
+    - '1.2.3.59/29'
+    virtual_ipaddress_excluded:
+    - '2a03:4444:fff0:59:88::59/64'
+
+    smtp_alert: true
+  1.2.3.60:
+    state: BACKUP
+    interface: eth0.4000
+    virtual_router_id: 60
+    priority: 75
+    nopreempt: true
+    advert_int: 1
+    track_interface:
+    - eth0
+    - dummy0
+    track_script: chk_nginx_ingress
+
+    unicast_source_ip: 192.168.200.2
+    unicast_peers:
+    - 192.168.200.1
+    - 192.168.200.3
+
+    virtual_ipaddress:
+    - '1.2.3.60/29'
+    virtual_ipaddress_excluded:
+    - '2a03:4444:fff0:59:88::60/64'
+
+    smtp_alert: true
+

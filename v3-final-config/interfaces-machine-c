@@ -1,0 +1,25 @@
+# Interface lo
+auto lo
+iface lo inet loopback
+# Interface dummy0
+auto dummy0
+iface dummy0 inet static
+    address 10.10.10.1/24
+    pre-up ip link add dummy0 type dummy
+    post-down ip link del dummy0
+# Interface eth0.4000v4
+auto eth0.4000
+iface eth0.4000 inet static
+    address 192.168.200.3
+    netmask 255.255.255.0
+# Interface eth0v4
+auto eth0
+iface eth0 inet static
+    address 3.4.5.86
+    netmask 255.255.255.192
+    gateway 3.4.5.65
+# Interface eth0v6
+auto eth0
+iface eth0 inet6 static
+    address 2a03:4444:4a:2469::2/64
+    gateway fe80::1

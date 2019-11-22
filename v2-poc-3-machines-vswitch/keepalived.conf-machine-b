@@ -1,0 +1,60 @@
+global_defs {
+  vrrp_version 3
+  enable_script_security
+  script_user nobody 
+  notification_email {
+    notifier@example.com 
+  }
+  notification_email_from notify_me@example.com 
+  smtp_server 127.0.0.1
+  smtp_connect_timeout 30
+  router_id machine-b 
+}
+
+vrrp_instance 1.2.3.6 {
+  state BACKUP 
+  interface eth0.4000
+  virtual_router_id 50
+  priority 50
+  nopreempt
+  advert_int 1
+  track_interface {
+    eth0
+  }
+  notify /usr/local/bin/keepalived_notify.sh
+  
+  unicast_src_ip 192.168.100.2 
+  unicast_peer { 
+    192.168.100.1
+    192.168.100.2
+  }
+  
+  virtual_ipaddress { 
+    1.2.3.6/32 dev eth0
+  }
+  smtp_alert
+}
+
+vrrp_instance 1.2.3.7 {
+  state MASTER 
+  interface eth0.4000
+  virtual_router_id 51
+  priority 100
+  nopreempt
+  advert_int 1
+  track_interface {
+    eth0
+  }
+  notify /usr/local/bin/keepalived_notify.sh
+  
+  unicast_src_ip 192.168.100.2 
+  unicast_peer { 
+    192.168.100.1
+    192.168.100.3
+  }
+  
+  virtual_ipaddress { 
+    1.2.3.7/32 dev eth0
+  }
+  smtp_alert
+}

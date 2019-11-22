@@ -1,0 +1,5 @@
+mod 'example42-network'
+mod 'puppet-keepalived'
+mod 'puppetlabs-concat'
+mod 'puppetlabs-stdlib'
+mod 'puppetlabs-translate'

@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+### File managed by Puppet
+#
+if [ "$IFACE" = "eth0" ] || [ "$IFACE" = "--all" ]; then
+  if ip rule show | grep -qF "to 1.2.3.56/29 lookup vswitch"
+  then
+    ip  rule del to 1.2.3.56/29 lookup vswitch
+  fi
+  if ip rule show | grep -qF "from 1.2.3.56/29 lookup vswitch"
+  then
+    ip  rule del from 1.2.3.56/29 lookup vswitch
+  fi
+fi
+
