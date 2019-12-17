@@ -25,4 +25,4 @@ Final version that includes all the pieces required to configure the keepalived 
 
 [puppet code](v3-final-config/puppet-code) is a simple version of code that can demonstrates the automation of such setup. It's explicitly written in Hiera without any additional functions or better Hiera code squashing to make it as explicit as possible. In real we utilize additional functions that would make it easier to write and less error prone.
 
- [blog post]: (... fill the link here ...)
+ [blog post]: (https://dtone.engineering/2019/from_failovers_to_keepalived_over_vswitches_with_hetzner/)
